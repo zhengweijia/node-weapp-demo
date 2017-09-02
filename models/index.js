@@ -3,11 +3,14 @@
 let fs        = require("fs");
 let path      = require("path");
 let Sequelize = require("sequelize");
-// let sequelize = new Sequelize('yandian', 'root', 'BBBBBCDIKNab1z', {
-let sequelize = new Sequelize('yandian_online', 'root', 'BBBBBCDIKNab1z', {
-	'host': '10.66.96.16',
-	'port': 3306,
+const config = require('../config');
+
+// 我的服务
+let sequelize = new Sequelize(config.dataBase.name, config.dataBase.userName, config.dataBase.pwd, {
+	'host': config.dataBase.host,
+	'port': config.dataBase.port,
 	'dialect': 'mysql',
+	timezone:'+08:00',
 	pool: {
 		max: 20,
 		min: 5,
@@ -18,6 +21,22 @@ let sequelize = new Sequelize('yandian_online', 'root', 'BBBBBCDIKNab1z', {
 		collate: 'utf8_general_ci',
 	},
 });
+
+// online 服务
+// let sequelize = new Sequelize('yandian_online', 'root', 'BBBBBCDIKNab1z', {
+// 	'host': '10.66.96.16',
+// 	'port': 3306,
+// 	'dialect': 'mysql',
+// 	pool: {
+// 		max: 20,
+// 		min: 5,
+// 		idle: 10000
+// 	},
+// 	dialectOptions: {
+// 		charset: 'utf8',
+// 		collate: 'utf8_general_ci',
+// 	},
+// });
 
 let db        = {};
 

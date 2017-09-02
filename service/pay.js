@@ -3,7 +3,7 @@ const LoginService = require('qcloud-weapp-server-sdk').LoginService;
 const md5 = require('md5');
 const config = require('../config');
 const WeiXinPay = require('weixinpay');
-const models = require('../models');
+const models = require('../models/index');
 
 let getPayConfig = (req, res)=> {
 	let loginService = LoginService.create(req, res);

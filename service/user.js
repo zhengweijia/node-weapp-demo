@@ -1,7 +1,7 @@
 'use strict';
 
 const LoginService = require('qcloud-weapp-server-sdk').LoginService;
-let models  = require('../models');
+let models  = require('../models/index');
 
 let get = (req, res) => {
 	let loginService = LoginService.create(req, res);

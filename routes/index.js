@@ -1,16 +1,14 @@
 'use strict';
 
 const express = require('express');
-const LineService = require('./line');
-const UserService = require('./user');
-const PayService = require('./pay');
-const JudgmentService = require('./judgment');
 const router = express.Router();
 
-// router.get('/', require('./welcome'));
-router.get('/login', require('./login'));
+const LineService = require('../service/line');
+const UserService = require('../service/user');
+const PayService = require('../service/pay');
+const JudgmentService = require('../service/judgment');
 
-// router.all('/tunnel', require('./tunnel'));
+router.get('/login', require('../service/login'));
 
 //用户信息
 router.get('/user/get/:id', UserService.get);
