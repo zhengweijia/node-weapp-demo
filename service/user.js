@@ -301,6 +301,7 @@ let updateAllUserMoney = function () {
  * 获得用户名次(根据奖金情况)
  */
 let getRanking = function (req, res) {
+	let loginService = LoginService.create(req, res);
 	loginService.check()
 		.then(data => {
 			let id = req.params.id;
