@@ -243,10 +243,95 @@ let registerJudgment = (req, res) => {
 
 };
 
+/**
+ * 更新所有参赛选手的获得奖金信息
+ */
+let updateAllUserMoney = function () {
+//	先取出来所有用户，所有line，所有result
+	return Promise.all([
+		models.user.findAll(),
+		models.line.findAll(),
+		models.result.findAll()
+	]).then((list)=>{
+		let userList = list[0];
+		let lineList = list[1];
+		let lineMap = {};
+		let resultList = list[2];
+
+		for(let line of lineList) {
+			lineMap[line.id] = line;
+		}
+		lineList = null;
+
+		for(let user of userList) {
+			let hasLineMap = {}; // 用来标记，防止一个用户重复攀登，多次计算奖金
+			let money = 0;
+			for(let result of resultList) {
+				//状态，-1正在进行中，0 失败，1成功
+				if(result.user_id == user.id && result.status == '1'  && !hasLineMap[result.id]) {
+					hasLineMap[result.id] = true;
+					// parseFloat((line.bonus / line.finish_num).toFixed(2));
+					let line = lineMap[result.line_id];
+					if(!!line) {
+						money = money + parseFloat((line.bonus / line.finish_num).toFixed(2));
+					}
+				}
+			}
+			if(money !== 0 && user.money != money) {
+				user.update({
+					money: money
+				}).then((lineData)=>{
+					res.json({
+						'code': 0,
+						'message': 'ok',
+						'data': {
+							time: time // 比赛耗时
+						},
+					});
+				});
+			}
+		}
+
+		return '';
+	})
+
+};
+
+/**
+ * 获得用户名次(根据奖金情况)
+ */
+let getRanking = function (req, res) {
+	let id = req.params.id;
+	models.user.findAll().then(userList=>{
+		// 排序
+		userList.sort(function (u1, u2) {
+			return u2.money - u1.money;
+		});
+		let num = parseInt(userList.length / 2);// 默认中间名次
+		for (let i=0; i < userList.length; i++) {
+			if(userList[i].id == id) {
+				num = i+1;
+				break;
+			}
+		}
+
+		res.json({
+			'code': 0,
+			'message': 'ok',
+			'date': {
+				ranking: num // 比赛耗时
+			},
+		});
+
+	});
+};
 module.exports = {
 	get: get,
 	curr: curr, // 获得当前用户信息
 	checkRegister: checkRegister,
 	register: register,
-	registerJudgment: registerJudgment
+	registerJudgment: registerJudgment,
+	updateAllUserMoney: updateAllUserMoney,
+
+	getRanking: getRanking,
 }

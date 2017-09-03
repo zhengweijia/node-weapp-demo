@@ -13,6 +13,7 @@ router.get('/login', require('../service/login'));
 
 //用户信息
 router.get('/user/get/:id', UserService.get);
+router.get('/user/get/ranking/:id', UserService.getRanking); // 获得用户名次
 router.get('/user/getcurr', UserService.curr);
 router.get('/user/checkRegister', UserService.checkRegister);
 

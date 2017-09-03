@@ -1,5 +1,6 @@
 'use strict';
 let models  = require('../models/index');
+let userService  = require('./user');
 const LoginService = require('qcloud-weapp-server-sdk').LoginService;
 
 let startGame = (req, res) => {
@@ -142,17 +143,26 @@ let endGame = (req, res) => {
 										}
 									}
 									finishNum = resList.length;
-									line.update({
-										finish_num: finishNum
-									}).then((lineData)=>{
-										res.json({
-											'code': 0,
-											'message': 'ok',
-											'data': {
-												time: time // 比赛耗时
-											},
+									if(finishNum !== line.finish_num) {
+										// 更新线路完成情况
+										line.update({
+											finish_num: finishNum
+										}).then((lineData)=>{
+											//更新所有人的奖金情况
+											userService.updateAllUserMoney().then(()=>{
+
+											});
 										});
+
+									}
+									res.json({
+										'code': 0,
+										'message': 'ok',
+										'data': {
+											time: time // 比赛耗时
+										},
 									});
+
 
 								});
 							} else {
