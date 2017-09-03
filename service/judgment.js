@@ -23,17 +23,25 @@ let startGame = (req, res) => {
 							openid: data.userInfo.openId
 						}
 					}),
-					// 查找选手œ
+					// 查找选手
 					models.user.findOne({
 						where: {
 							id: user_id
 						}
 					}),
+					// 查找选手是否有进行中的比赛
+					models.result.findAll({
+						where: {
+							user_id: user_id,
+							status: '-1'
+						}
+					}),
 				]).then((list)=>{
 					let jud = list[0];
 					let us = list[1];
+					let result_on_list = list[2];
 					//用户类型 0 管理员，1裁判，2参赛选手，3普通用户
-					if(!!jud && jud.role == '1' && !!us && !!us.id) {
+					if(!!jud && jud.role == '1' && !!us && !!us.id && (!result_on_list || result_on_list.length <= 0)) {
 						let judgment_id = jud.id;//裁判id
 
 						models.result.create({
@@ -53,16 +61,22 @@ let startGame = (req, res) => {
 							});
 						});
 					} else {
-						let msg = '';
-						if(!jud || jud.role != '1') {
-							msg = '不是裁判在操作';
-						} else {
-							msg = '选手不存在，请检查选手编号';
-						}
-						res.json({
+						let r = {
 							'code': 1,
-							'message': msg
-						});
+							'message': '',
+							data:{}
+						};
+						if(!jud || jud.role != '1') {
+							r.msg = '不是裁判在操作';
+						} else if( !!result_on_list && result_on_list.length > 0) {
+							r.msg = '该选手还有未结束的线路比赛';
+							r.data = result_on_list;
+							r.code = -100;
+						}
+						else {
+							r.msg = '选手不存在，请检查选手编号';
+						}
+						res.json(r);
 					}
 				});
 			} else {
