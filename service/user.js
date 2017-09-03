@@ -70,8 +70,8 @@ let curr = (req, res) => {
 };
 let checkRegister = (req, res) => {
 	let loginService = LoginService.create(req, res);
- 	let ret = {
- 		'code': '1',
+	let ret = {
+		'code': '1',
 		'message': '未完善信息',
 	};
 	loginService.check()
@@ -110,7 +110,7 @@ let checkRegister = (req, res) => {
 			ret.message = '未登录';
 			// 返回失败
 			res.json(ret);
-	});
+		});
 
 };
 
@@ -301,29 +301,46 @@ let updateAllUserMoney = function () {
  * 获得用户名次(根据奖金情况)
  */
 let getRanking = function (req, res) {
-	let id = req.params.id;
-	models.user.findAll().then(userList=>{
-		// 排序
-		userList.sort(function (u1, u2) {
-			return u2.money - u1.money;
-		});
-		let num = parseInt(userList.length / 2);// 默认中间名次
-		for (let i=0; i < userList.length; i++) {
-			if(userList[i].id == id) {
-				num = i+1;
-				break;
+	loginService.check()
+		.then(data => {
+			let id = req.params.id;
+			if(!!id) {
+				models.user.findAll().then(userList=>{
+					// 排序
+					userList.sort(function (u1, u2) {
+						return u2.money - u1.money;
+					});
+					let num = parseInt(userList.length / 2);// 默认中间名次
+					for (let i=0; i < userList.length; i++) {
+						if(userList[i].id == id) {
+							num = i+1;
+							break;
+						}
+					}
+
+					res.json({
+						'code': 0,
+						'message': 'ok',
+						'data': {
+							ranking: num // 比赛耗时
+						},
+					});
+
+				});
+			} else {
+				res.json({
+					'code': 1,
+					'message': 'id 为空'
+				});
 			}
-		}
-
+		}).catch(()=>{
 		res.json({
-			'code': 0,
-			'message': 'ok',
-			'data': {
-				ranking: num // 比赛耗时
-			},
+			'code': 1,
+			'message': '非法请求'
 		});
-
 	});
+
+
 };
 module.exports = {
 	get: get,
