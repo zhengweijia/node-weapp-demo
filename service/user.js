@@ -318,7 +318,6 @@ let getRanking = function (req, res) {
 							break;
 						}
 					}
-
 					res.json({
 						'code': 0,
 						'message': 'ok',
