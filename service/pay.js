@@ -23,7 +23,7 @@ let getPayConfig = (req, res)=> {
 			if(regUser && !!regUser.id) {
 				res.json({
 					'code': -1000,
-					'message': '已经注册成功',
+					'message': '已注册',
 					'data': {
 						'userInfo': regUser,
 					},

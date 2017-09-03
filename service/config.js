@@ -19,7 +19,7 @@ let getDatabaseConfig = () => {
 
 
 let getConfig = (req, res) => {
-	this.getDatabaseConfig().then(config=>{
+	getDatabaseConfig().then(config=>{
 		res.json({
 			'code': 0,
 			'message': 'ok',
