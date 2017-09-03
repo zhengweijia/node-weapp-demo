@@ -67,14 +67,14 @@ let startGame = (req, res) => {
 							data:{}
 						};
 						if(!jud || jud.role != '1') {
-							r.msg = '不是裁判在操作';
+							r.message = '不是裁判在操作';
 						} else if( !!result_on_list && result_on_list.length > 0) {
-							r.msg = '该选手还有未结束的线路比赛';
+							r.message = '该选手还有未结束的线路比赛';
 							r.data = result_on_list;
 							r.code = -100;
 						}
 						else {
-							r.msg = '选手不存在，请检查选手编号';
+							r.message = '选手不存在，请检查选手编号';
 						}
 						res.json(r);
 					}
