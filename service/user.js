@@ -318,7 +318,7 @@ let getRanking = function (req, res) {
 		res.json({
 			'code': 0,
 			'message': 'ok',
-			'date': {
+			'data': {
 				ranking: num // 比赛耗时
 			},
 		});
