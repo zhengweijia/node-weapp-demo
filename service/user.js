@@ -477,6 +477,7 @@ let getReportInfo = function (req, res) {
 						let allLineDifficultyMap = {};
 						let resultList = list[2];
 
+						console.log(list);
 						for(let d of allLineDifficulty) {
 							allLineDifficultyMap[d.id] = d;
 						}
