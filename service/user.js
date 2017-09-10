@@ -499,7 +499,7 @@ let getReportInfo = function (req, res) {
 								}
 							}
 							ret.data.maxLineDifficulty = maxLineDifficulty;
-							console.log('------------------ fastTime: 0,//最快完成线路时间'+ maxLine);
+							console.log('------------------ fastTime: 0,//最快完成线路时间', maxLine);
 
 							//------------------ fastTime: 0,//最快完成线路时间
 							let fast = null;
@@ -541,7 +541,7 @@ let getReportInfo = function (req, res) {
 									}
 								}
 								ret.data.maxDifficultyUserNum = maxNum;
-								console.log('------------------ maxDifficultyUserNum: 0, // 最难线路完成人数'+ onlyMap);
+								console.log('------------------ maxDifficultyUserNum: 0, // 最难线路完成人数', onlyMap);
 
 								//------------------ fastTimeRate: 0, //最快完成时间超过多少人超过 98% 的选手
 								onlyMap = {};
@@ -564,7 +564,7 @@ let getReportInfo = function (req, res) {
 								ret.data.fastTimeRate = parseInt(moreNum*100/onlyList.length)+'%';
 								ret.data.money = user.money;
 
-								console.log('------------------ maxDifficultyUserNum: 0, // 最难线路完成人数'+ onlyMap);
+								console.log('------------------ maxDifficultyUserNum: 0, // 最快完成时间超过多少人超过',moreNum, moreNum);
 
 								res.json(ret);
 							}).catch(()=>{
