@@ -16,6 +16,7 @@ router.get('/user/get/:id', UserService.get);
 router.get('/user/get/ranking/:id', UserService.getRanking); // 获得用户名次
 router.get('/user/getcurr', UserService.curr);
 router.get('/user/checkRegister', UserService.checkRegister);
+router.get('/user/get/reportinfo', UserService.getReportinfo);
 
 router.post('/user/modify/phone', UserService.modifyPhone); //补充手机号
 
