@@ -528,7 +528,7 @@ let getReportInfo = function (req, res) {
 
 								//------------------ maxDifficultyUserNum: 0, // 最难线路完成人数
 								let maxResultList = rList[0];
-								let fastResultList = rList[1];
+								let fastResultListData = rList[1];
 
 								let maxNum = 0;
 								let onlyMap = {};//用来排除一个人攀成功了两次的情况
@@ -543,6 +543,10 @@ let getReportInfo = function (req, res) {
 								//------------------ fastTimeRate: 0, //最快完成时间超过多少人超过 98% 的选手
 								onlyMap = {};
 								let onlyList = [];
+								let fastResultList = [];
+								for (let i of fastResultListData) {
+									fastResultList.push(i);
+								}
 								fastResultList.sort((a, b)=>{
 									return a.time -b.time;
 								});
