@@ -469,7 +469,7 @@ let getReportInfo = function (req, res) {
 								status: '1'
 							}
 						}),
-					], (list)=>{
+					]).then( (list)=>{
 						let allLine = list[0];
 						let allLineMap = {};
 
@@ -525,7 +525,7 @@ let getReportInfo = function (req, res) {
 										status: '1'
 									}
 								})
-							],(rList)=>{
+							]).then((rList)=>{
 								//------------------ maxDifficultyUserNum: 0, // 最难线路完成人数
 								let maxResultList = rList[0];
 								let fastResultList = rList[1];
