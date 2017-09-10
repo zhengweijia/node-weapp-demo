@@ -3,8 +3,10 @@
 let fs        = require("fs");
 let path      = require("path");
 let Sequelize = require("sequelize");
-let config = require("../config");
 
+const config = require('../config');
+
+// 我的服务
 let sequelize = new Sequelize(config.dataBase.name, config.dataBase.userName, config.dataBase.pwd, {
 	'host': config.dataBase.host,
 	'port': config.dataBase.port,

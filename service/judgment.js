@@ -1,5 +1,6 @@
 'use strict';
-let models  = require('../models');
+let models  = require('../models/index');
+let userService  = require('./user');
 const LoginService = require('qcloud-weapp-server-sdk').LoginService;
 
 let startGame = (req, res) => {
@@ -16,24 +17,44 @@ let startGame = (req, res) => {
 			let status = -1; //状态，-1正在进行中，0 失败，1成功
 			let start_time = (new Date()); // 开始时间
 			if(!!user_id && !!line_id ) {
-				models.user.findOne({
-					where: {
-						openid: data.userInfo.openId
-					}
-				}).then((u)=>{
-					//用户类型 0 管理员，1裁判，2参赛选手，3普通用户
-					if(u.role == '1') {
-						let judgment_id = u.id;//裁判id
-
-						models.result.upsert({
+				Promise.all([
+					// 查找裁判
+					models.user.findOne({
+						where: {
+							openid: data.userInfo.openId
+						}
+					}),
+					// 查找选手
+					models.user.findOne({
+						where: {
+							id: user_id
+						}
+					}),
+					// 查找选手是否有进行中的比赛
+					models.result.findAll({
+						where: {
 							user_id: user_id,
-							judge_id: judge_id,
+							status: '-1'
+						}
+					}),
+				]).then((list)=>{
+					let jud = list[0];
+					let us = list[1];
+					let result_on_list = list[2];
+					//用户类型 0 管理员，1裁判，2参赛选手，3普通用户
+					if(!!jud && jud.role == '1' && !!us && !!us.id && (!result_on_list || result_on_list.length <= 0)) {
+						let judgment_id = jud.id;//裁判id
+
+						models.result.create({
+							user_id: user_id,
+							judge_id: judgment_id,
 							area_id: area_id,
 							ground_id: ground_id,
 							line_id: line_id,
 							start_time: start_time,
 							status: status,
 						}).then(data2=>{
+							// data2.start_time = start_time; // 开始时间
 							res.json({
 								'code': 0,
 								'message': 'ok',
@@ -41,15 +62,24 @@ let startGame = (req, res) => {
 							});
 						});
 					} else {
-						res.json({
+						let r = {
 							'code': 1,
-							'message': '不是裁判在操作'
-						});
+							'message': '',
+							data:{}
+						};
+						if(!jud || jud.role != '1') {
+							r.message = '不是裁判在操作';
+						} else if( !!result_on_list && result_on_list.length > 0) {
+							r.message = '该选手还有未结束的线路比赛';
+							r.data = result_on_list;
+							r.code = -100;
+						}
+						else {
+							r.message = '选手不存在，请检查选手编号';
+						}
+						res.json(r);
 					}
-
 				});
-
-
 			} else {
 				res.json({
 					'code': 1,
@@ -69,8 +99,7 @@ let endGame = (req, res) => {
 
 			let status = req.body.status; //状态，-1正在进行中，0 失败，1成功
 
-			let start_time = (new Date()); // 开始时间
-			if(!!judgment_id && !!judgment_id && !!judgment_id ) {
+			if(!!id) {
 				Promise.all([
 					models.user.findOne({where: {openid: data.userInfo.openId}}),
 					models.result.findOne({where: {id: id}})
@@ -94,28 +123,46 @@ let endGame = (req, res) => {
 									models.result.findAll({where: {line_id: result.line_id}}),
 									models.line.findOne({where: {id: result.line_id}})
 								]).then((list2)=>{
-									let resultList = list2[1]; // 所有关于这条线的结果
-									let line = list2[2]; // 线信息
+									let resultList = list2[0]; // 所有关于这条线的结果
+									let line = list2[1]; // 线信息
 
 									let finishNum = 0; //完成这条线路总数量
-									let resMap = {};
+									let resList = [];
 									for(let resu of resultList) {
 										if(resu.status == '1'){
-											resMap[resu.user_id] = 1; // 使用map来过滤同一个用户完成了两次该线路问题
+											let f = true;//同一条线路，如果是同一个完成的，则只记一次完成
+											for(let res of resList) {
+												if(resu.user_id === res.user_id) {
+													f = false;
+													break;
+												}
+											}
+											if(f) {
+												resList.push(resu);
+											}
 										}
 									}
-									finishNum = resMap.keys().length;
-									line.update({
-										finish_num: finishNum
-									}).then((lineData)=>{
-										res.json({
-											'code': 0,
-											'message': 'ok',
-											'data': {
-												time: time // 比赛耗时
-											},
+									finishNum = resList.length;
+									if(finishNum !== line.finish_num) {
+										// 更新线路完成情况
+										line.update({
+											finish_num: finishNum
+										}).then((lineData)=>{
+											//更新所有人的奖金情况
+											userService.updateAllUserMoney().then(()=>{
+
+											});
 										});
+
+									}
+									res.json({
+										'code': 0,
+										'message': 'ok',
+										'data': {
+											time: time // 比赛耗时
+										},
 									});
+
 
 								});
 							} else {
@@ -160,6 +207,11 @@ let getGame = (req, res) => {
 						id: id
 					}
 				}).then((result)=>{
+					if(!!result && result.status == '-1') {
+						// 正在进行中的，计算下当前已经过去多久
+						let use = (new Date()).getTime() -  (new Date(result.start_time)).getTime();
+						result.dataValues.useTime = use;
+					}
 					res.json({
 						'code': 0,
 						'message': 'ok',
@@ -172,6 +224,12 @@ let getGame = (req, res) => {
 					'message': '参数不齐'
 				});
 			}
+		})
+		.catch(()=>{
+			res.json({
+				'code': 1,
+				'message': '参数错误'
+			});
 		});
 };
 let getAllOnGameByCurr = (req, res) => {
@@ -197,13 +255,13 @@ let getAllOnGameByCurr = (req, res) => {
 						if(result.length > 0) {
 
 							// 拿到用户信息
-							let uidMap = {};
+							let idlist = [];
 							for(let resu of result) {
-								uidMap[resu.user_id] = 1;
+								idlist.push(resu.user_id);
 							}
 							models.user.findAll({
 								where: {
-									id: uidMap.keys()
+									id: idlist
 								}
 							}).then((userList) => {
 								res.json({

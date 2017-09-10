@@ -1,7 +1,7 @@
 'use strict';
 
 const LoginService = require('qcloud-weapp-server-sdk').LoginService;
-let models  = require('../models');
+let models  = require('../models/index');
 
 let get = (req, res) => {
 	let loginService = LoginService.create(req, res);
@@ -70,8 +70,8 @@ let curr = (req, res) => {
 };
 let checkRegister = (req, res) => {
 	let loginService = LoginService.create(req, res);
- 	let ret = {
- 		'code': '1',
+	let ret = {
+		'code': '1',
 		'message': '未完善信息',
 	};
 	loginService.check()
@@ -84,13 +84,25 @@ let checkRegister = (req, res) => {
 					}
 				}).then( regUser =>{
 					if(regUser && !!regUser.id) {
-						res.json({
-							'code': 0,
-							'message': 'ok',
-							'data': {
-								'userInfo': regUser,
-							},
-						});
+						if(!!regUser.phone) {
+							res.json({
+								'code': 0,
+								'message': 'ok',
+								'data': {
+									'userInfo': regUser,
+								},
+							});
+						} else {
+							//	没有手机号，补充
+							res.json({
+								'code': -200,
+								'message': '补充手机号',
+								'data': {
+									'userInfo': regUser,
+								},
+							});
+						}
+
 					} else {
 						ret.data={
 							userInfo : data.userInfo
@@ -110,7 +122,7 @@ let checkRegister = (req, res) => {
 			ret.message = '未登录';
 			// 返回失败
 			res.json(ret);
-	});
+		});
 
 };
 
@@ -134,6 +146,7 @@ let register = (req, res) => {
 	let email = req.body.email;
 	let avatar_url = req.body.avatar_url;
 	let id_card = req.body.id_card;
+	let game_list = req.body.game_list;
 
 	models.user.upsert({
 		role: '2', //运动员
@@ -153,7 +166,8 @@ let register = (req, res) => {
 		phone: phone,
 		email: email,
 		avatar_url: avatar_url,
-		id_card: id_card
+		id_card: id_card,
+		game_list: game_list
 
 	}).then(data=>{
 		res.json({
@@ -243,10 +257,156 @@ let registerJudgment = (req, res) => {
 
 };
 
+/**
+ * 更新所有参赛选手的获得奖金信息
+ */
+let updateAllUserMoney = function () {
+//	先取出来所有用户，所有line，所有result
+	return Promise.all([
+		models.user.findAll(),
+		models.line.findAll(),
+		models.result.findAll()
+	]).then((list)=>{
+		let userList = list[0];
+		let lineList = list[1];
+		let lineMap = {};
+		let resultList = list[2];
+
+		for(let line of lineList) {
+			lineMap[line.id] = line;
+		}
+		lineList = null;
+
+		for(let user of userList) {
+			let hasLineMap = {}; // 用来标记，防止一个用户重复攀登，多次计算奖金
+			let money = 0;
+			for(let result of resultList) {
+				//状态，-1正在进行中，0 失败，1成功
+				if(result.user_id == user.id && result.status == '1'  && !hasLineMap[result.id]) {
+					hasLineMap[result.id] = true;
+					// parseFloat((line.bonus / line.finish_num).toFixed(2));
+					let line = lineMap[result.line_id];
+					if(!!line) {
+						money = money + parseFloat((line.bonus / line.finish_num).toFixed(2));
+					}
+				}
+			}
+			if(money !== 0 && user.money != money) {
+				user.update({
+					money: money
+				}).then((lineData)=>{
+					res.json({
+						'code': 0,
+						'message': 'ok',
+						'data': {
+							time: time // 比赛耗时
+						},
+					});
+				});
+			}
+		}
+
+		return '';
+	})
+
+};
+
+/**
+ * 获得用户名次(根据奖金情况)
+ */
+let getRanking = function (req, res) {
+	let loginService = LoginService.create(req, res);
+	loginService.check()
+		.then(data => {
+			let id = req.params.id;
+			if(!!id) {
+				models.user.findAll().then(userList=>{
+					// 排序
+					userList.sort(function (u1, u2) {
+						return u2.money - u1.money;
+					});
+					let num = parseInt(userList.length / 2);// 默认中间名次
+					for (let i=0; i < userList.length; i++) {
+						if(userList[i].id == id) {
+							num = i+1;
+							break;
+						}
+					}
+					res.json({
+						'code': 0,
+						'message': 'ok',
+						'data': {
+							ranking: num // 比赛耗时
+						},
+					});
+
+				});
+			} else {
+				res.json({
+					'code': 1,
+					'message': 'id 为空'
+				});
+			}
+		}).catch(()=>{
+		res.json({
+			'code': 1,
+			'message': '非法请求'
+		});
+	});
+};
+
+
+/**
+ * 获得用户名次(根据奖金情况)
+ */
+let modifyPhone = function (req, res) {
+	let phone = req.body.phone;
+	let game_list = req.body.game_list;
+
+	let loginService = LoginService.create(req, res);
+	loginService.check()
+		.then(data => {
+			if(!!data &&  !!data.userInfo && !!data.userInfo.openId) {
+				models.user.findOne({
+					where: {
+						openid: data.userInfo.openId
+					}
+				}).then(user=>{
+					user.update({
+						phone: phone,
+						game_list: game_list
+					}).then(()=>{
+						res.json({
+							'code': 0,
+							'message': 'ok',
+							'data': {
+							},
+						});
+					});
+				});
+			} else {
+				res.json({
+					'code': 1,
+					'message': '非法请求，没有openid'
+				});
+			}
+		}).catch(()=>{
+			res.json({
+				'code': 1,
+				'message': '非法请求'
+			});
+	});
+
+};
+
 module.exports = {
 	get: get,
 	curr: curr, // 获得当前用户信息
 	checkRegister: checkRegister,
 	register: register,
-	registerJudgment: registerJudgment
+	registerJudgment: registerJudgment,
+	updateAllUserMoney: updateAllUserMoney,
+
+	getRanking: getRanking,
+	modifyPhone: modifyPhone,
 }

@@ -45,7 +45,15 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(50),
       allowNull: true
     },
+		phone: {
+			type: DataTypes.STRING(50),
+			allowNull: true
+		},
 		avatar_url: {
+			type: DataTypes.STRING(255),
+			allowNull: true
+		},
+		game_list: {
 			type: DataTypes.STRING(255),
 			allowNull: true
 		},

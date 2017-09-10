@@ -1,11 +1,8 @@
 'use strict';
-let models  = require('../models');
+let models  = require('../models/index');
 let getAll = (req, res) => {
 	// console.log(models.Line);
 	Promise.all([models.area.findAll(), models.ground.findAll(), models.line.findAll(), models.line_difficulty.findAll()]).then(list=>{
-		console.log('----------------start--------------');
-		console.log(list);
-		console.log('----------------end--------------');
 		res.json({
 			'code': 0,
 			'message': 'ok',
@@ -36,7 +33,6 @@ let getOne = (req, res) => {
 };
 
 let getAllLineDifficulty = (req, res) => {
-	console.log('----------------end--------------');
 	models.line_difficulty.findAll({
 		// sort:[['difficulty','ASC']]
 		sort: [['difficulty','DESC']]

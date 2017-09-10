@@ -3,21 +3,35 @@ const LoginService = require('qcloud-weapp-server-sdk').LoginService;
 const md5 = require('md5');
 const config = require('../config');
 const WeiXinPay = require('weixinpay');
-const models = require('../models');
+const models = require('../models/index');
+const configService = require('./config');
 
 let getPayConfig = (req, res)=> {
 	let loginService = LoginService.create(req, res);
+	// 检查有没有注册
 	loginService.check().then(result => {
-		// 检查有没有注册
-		models.user.findOne({
-			where: {
-				openid: result.userInfo.openId
-			}
-		}).then( regUser =>{
+		Promise.all([
+			models.user.findOne({
+				where: {
+					openid: result.userInfo.openId
+				}
+			}),
+			configService.getDatabaseConfig()
+		]).then( list =>{
+			let regUser = list[0];
+			let yandianConfig = list[1];
 			if(regUser && !!regUser.id) {
 				res.json({
 					'code': -1000,
-					'message': '已经注册成功',
+					'message': '已注册',
+					'data': {
+						'userInfo': regUser,
+					},
+				});
+			} else if(!!yandianConfig && yandianConfig.can_apply == '0'){
+				res.json({
+					'code': -1000,
+					'message': '已经结束报名',
 					'data': {
 						'userInfo': regUser,
 					},
