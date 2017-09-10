@@ -503,13 +503,21 @@ let getReportInfo = function (req, res) {
 							let fast = null;
 							let fastLine = null;
 							let fastResult = null;
+							let onlyMap1 = {};
 							for (let res of resultList) {
 								if( fast === null || fast > res.time) {
 									fastLine = allLineMap[res.line_id];
 									fastResult = res;
 									fast = res.time;
 								}
+
+								// 计算一共完成多少线路
+								if(!onlyMap1[res.id]) {
+									onlyMap1[res.id] = true;
+									ret.data.finishNum++;
+								}
 							}
+
 
 							Promise.all([
 								// 难度最大的路线，查找所有完成该路线的
@@ -565,11 +573,8 @@ let getReportInfo = function (req, res) {
 								} else {
 									ret.data.fastTimeRate = parseInt(moreNum*100/onlyList.length)+'%';
 								}
+								ret.data.fastTime = fastResult.time;
 								ret.data.money = user.money;
-
-								console.log('//------------------',fastLine);
-								console.log('//------------------',moreNum);
-
 								res.json(ret);
 							}).catch(()=>{
 								res.json(ret);
