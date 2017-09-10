@@ -539,7 +539,6 @@ let getReportInfo = function (req, res) {
 									}
 								}
 								ret.data.maxDifficultyUserNum = maxNum;
-								console.log('------------------ maxDifficultyUserNum: 0, // 最难线路完成人数', onlyMap);
 
 								//------------------ fastTimeRate: 0, //最快完成时间超过多少人超过 98% 的选手
 								onlyMap = {};
@@ -559,26 +558,24 @@ let getReportInfo = function (req, res) {
 										moreNum++;
 									}
 								}
-								ret.data.fastTimeRate = parseInt(moreNum*100/onlyList.length)+'%';
+								if(onlyList.length == 0) {
+									ret.data.fastTimeRate = '100%';
+								} else {
+									ret.data.fastTimeRate = parseInt(moreNum*100/onlyList.length)+'%';
+								}
 								ret.data.money = user.money;
 
-								console.log('------------------ maxDifficultyUserNum: 0, // 最快完成时间超过多少人超过',moreNum, moreNum);
+								console.log('------------------ maxDifficultyUserNum: 0, // 最快完成时间超过多少人超过',moreNum, fastResultList);
 
 								res.json(ret);
 							}).catch(()=>{
-								console.log('------------------ 1111111');
-
 								res.json(ret);
 							});
 						} else {
-							console.log('------------------ 2222222');
-
 							res.json(ret);
 						}
 
 					}).catch(() =>{
-						console.log('------------------ 33333333');
-
 						res.json(ret);
 					});
 				});
