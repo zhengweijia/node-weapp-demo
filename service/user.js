@@ -366,7 +366,7 @@ let modifyPhone = function (req, res) {
 	let loginService = LoginService.create(req, res);
 	loginService.check()
 		.then(data => {
-			if(!!id) {
+			if(!!data && !!data.openid) {
 				models.user.findOne({
 					where: {
 						openid: data.openid
@@ -391,15 +391,14 @@ let modifyPhone = function (req, res) {
 				});
 			}
 		}).catch(()=>{
-		res.json({
-			'code': 1,
-			'message': '非法请求'
-		});
+			res.json({
+				'code': 1,
+				'message': '非法请求'
+			});
 	});
 
+};
 
-
-}
 module.exports = {
 	get: get,
 	curr: curr, // 获得当前用户信息
