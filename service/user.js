@@ -146,6 +146,7 @@ let register = (req, res) => {
 	let email = req.body.email;
 	let avatar_url = req.body.avatar_url;
 	let id_card = req.body.id_card;
+	let game_list = req.body.game_list;
 
 	models.user.upsert({
 		role: '2', //运动员
@@ -165,7 +166,8 @@ let register = (req, res) => {
 		phone: phone,
 		email: email,
 		avatar_url: avatar_url,
-		id_card: id_card
+		id_card: id_card,
+		game_list: game_list
 
 	}).then(data=>{
 		res.json({
@@ -351,9 +353,53 @@ let getRanking = function (req, res) {
 			'message': '非法请求'
 		});
 	});
-
-
 };
+
+
+/**
+ * 获得用户名次(根据奖金情况)
+ */
+let modifyPhone = function (req, res) {
+	let phone = req.body.phone;
+	let game_list = req.body.game_list;
+
+	let loginService = LoginService.create(req, res);
+	loginService.check()
+		.then(data => {
+			if(!!id) {
+				models.user.findOne({
+					where: {
+						openid: data.openid
+					}
+				}).then(user=>{
+					user.update({
+						phone: phone,
+						game_list: game_list
+					}).then(()=>{
+						res.json({
+							'code': 0,
+							'message': 'ok',
+							'data': {
+							},
+						});
+					});
+				});
+			} else {
+				res.json({
+					'code': 1,
+					'message': '非法请求，没有openid'
+				});
+			}
+		}).catch(()=>{
+		res.json({
+			'code': 1,
+			'message': '非法请求'
+		});
+	});
+
+
+
+}
 module.exports = {
 	get: get,
 	curr: curr, // 获得当前用户信息
@@ -363,4 +409,5 @@ module.exports = {
 	updateAllUserMoney: updateAllUserMoney,
 
 	getRanking: getRanking,
+	modifyPhone: modifyPhone,
 }
