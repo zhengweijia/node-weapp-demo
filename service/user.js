@@ -502,9 +502,11 @@ let getReportInfo = function (req, res) {
 							//------------------ fastTime: 0,//最快完成线路时间
 							let fast = null;
 							let fastLine = null;
+							let fastResult = null;
 							for (let res of resultList) {
 								if( fast === null || fast > res.time) {
 									fastLine = allLineMap[res.line_id];
+									fastResult = res;
 									fast = res.time;
 								}
 							}
@@ -547,14 +549,14 @@ let getReportInfo = function (req, res) {
 									return a.time -b.time;
 								});
 								for (let i of fastResultList) {
-									if(!onlyMap[i.user_id] && i.user_id !== user.id) {
+									if(!onlyMap[i.user_id] && i.user_id != user.id) {
 										onlyList.push(i);
 										onlyMap[i.user_id] = true;
 									}
 								}
 								let moreNum = 0; // 比他攀爬时间多的人数
 								for (let i of onlyList) {
-									if(i.time > fastLine.time) {
+									if(i.time > fastResult.time) {
 										moreNum++;
 									}
 								}
@@ -565,7 +567,6 @@ let getReportInfo = function (req, res) {
 								}
 								ret.data.money = user.money;
 
-								console.log('//------------------',onlyList);
 								console.log('//------------------',fastLine);
 								console.log('//------------------',moreNum);
 
