@@ -84,7 +84,7 @@ let checkRegister = (req, res) => {
 					}
 				}).then( regUser =>{
 					if(regUser && !!regUser.id) {
-						if(!!regUser.number) {
+						if(!!regUser.phone) {
 							res.json({
 								'code': 0,
 								'message': 'ok',
