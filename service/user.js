@@ -366,10 +366,10 @@ let modifyPhone = function (req, res) {
 	let loginService = LoginService.create(req, res);
 	loginService.check()
 		.then(data => {
-			if(!!data && !!data.openid) {
+			if(!!data &&  !!data.userInfo && !!data.userInfo.openId) {
 				models.user.findOne({
 					where: {
-						openid: data.openid
+						openid: data.userInfo.openId
 					}
 				}).then(user=>{
 					user.update({
