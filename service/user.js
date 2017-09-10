@@ -484,7 +484,6 @@ let getReportInfo = function (req, res) {
 							allLineMap[l.id] = l;
 						}
 						if(!!resultList && resultList.length > 0) {
-							console.log('------------------ maxDifficultyLine: 0,// 最难路线');
 							//------------------ maxDifficultyLine: 0,// 最难路线
 							let maxLine = null;
 							let maxLineDifficulty = null;
@@ -499,7 +498,6 @@ let getReportInfo = function (req, res) {
 								}
 							}
 							ret.data.maxLineDifficulty = maxLineDifficulty;
-							console.log('------------------ fastTime: 0,//最快完成线路时间', maxLine);
 
 							//------------------ fastTime: 0,//最快完成线路时间
 							let fast = null;
@@ -545,7 +543,7 @@ let getReportInfo = function (req, res) {
 
 								//------------------ fastTimeRate: 0, //最快完成时间超过多少人超过 98% 的选手
 								onlyMap = {};
-								let onlyList = {};
+								let onlyList = [];
 								fastResultList.sort((a, b)=>{
 									return a.time -b.time;
 								});
