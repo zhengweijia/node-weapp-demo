@@ -84,13 +84,25 @@ let checkRegister = (req, res) => {
 					}
 				}).then( regUser =>{
 					if(regUser && !!regUser.id) {
-						res.json({
-							'code': 0,
-							'message': 'ok',
-							'data': {
-								'userInfo': regUser,
-							},
-						});
+						if(!!regUser.number) {
+							res.json({
+								'code': 0,
+								'message': 'ok',
+								'data': {
+									'userInfo': regUser,
+								},
+							});
+						} else {
+							//	没有手机号，补充
+							res.json({
+								'code': -200,
+								'message': '补充手机号',
+								'data': {
+									'userInfo': regUser,
+								},
+							});
+						}
+
 					} else {
 						ret.data={
 							userInfo : data.userInfo
