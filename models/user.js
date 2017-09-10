@@ -53,6 +53,10 @@ module.exports = function(sequelize, DataTypes) {
 			type: DataTypes.STRING(255),
 			allowNull: true
 		},
+		game_list: {
+			type: DataTypes.STRING(255),
+			allowNull: true
+		},
     id_card: {
       type: DataTypes.STRING(30),
       allowNull: true
