@@ -399,39 +399,6 @@ let modifyPhone = function (req, res) {
 
 };
 
-// blockList:[
-// 	{
-// 		img: config.staticUrl+'/img/report/1.png',
-// 		className: 'img1',
-// 		title1:'你获得的总奖金',
-// 		title2:'4321 元',
-// 		title3:'',
-// 	},
-// 	{
-// 		img: config.staticUrl+'/img/report/2.png',
-// 		className: 'img2',
-//
-// 		title1:'完成的线路最高难度为',
-// 		title2:'5.14',
-// 		title3:'仅有 3 人完攀',
-// 	},
-// 	{
-// 		img: config.staticUrl+'/img/report/3.png',
-// 		className: 'img3',
-//
-// 		title1:'你一共完成了',
-// 		title2:'15 条线路',
-// 		title3:'',
-// 	},
-// 	{
-// 		img: config.staticUrl+'/img/report/4.png',
-// 		className: 'img4',
-//
-// 		title1:'最快完成线路用时',
-// 		title2:'1小时45分56秒',
-// 		title3:'超过 98% 的选手',
-// 	}
-// ],
 /**
  * 获得用户成绩单所需信息
  */
@@ -601,6 +568,58 @@ let getReportInfo = function (req, res) {
 	});
 
 };
+
+let saveWechatId = function (req, res) {
+	res.json({
+		'code': 1,
+		'message': '非法请求，没有openid'
+	});
+
+	let loginService = LoginService.create(req, res);
+
+	loginService.check()
+		.then(data => {
+			if (!!data && !!data.userInfo && !!data.userInfo.openId) {
+				models.user.findOne({
+					where: {
+						openid: data.userInfo.openId
+					}
+				}).then(user => {
+					let wechat_id = req.body.wechat_id;
+					if(!!wechatId) {
+						user.update({
+							wechat_id: wechat_id,
+						}).then(()=>{
+							res.json({
+								'code': 0,
+								'message': 'ok',
+								'data': {
+								},
+							});
+						});
+					} else {
+						res.json({
+							'code': 1,
+							'message': '没有微信号'
+						});
+					}
+
+
+				}).catch(()=>{
+					res.json({
+						'code': 1,
+						'message': '非法请求，没有openid'
+					});
+				});
+			}
+		})
+		.catch(()=>{
+			res.json({
+				'code': 1,
+				'message': '非法请求'
+			});
+		});
+};
 module.exports = {
 	get: get,
 	curr: curr, // 获得当前用户信息
@@ -612,4 +631,5 @@ module.exports = {
 	getRanking: getRanking,
 	modifyPhone: modifyPhone,
 	getReportinfo: getReportInfo,
+	saveWechatId: saveWechatId,
 }

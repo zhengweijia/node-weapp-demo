@@ -57,6 +57,10 @@ module.exports = function(sequelize, DataTypes) {
 			type: DataTypes.STRING(255),
 			allowNull: true
 		},
+		wechat_id: {
+			type: DataTypes.STRING(255),
+			allowNull: true
+		},
     id_card: {
       type: DataTypes.STRING(30),
       allowNull: true

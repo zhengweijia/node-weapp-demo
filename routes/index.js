@@ -19,6 +19,7 @@ router.get('/user/checkRegister', UserService.checkRegister);
 router.get('/user/reportinfo', UserService.getReportinfo);
 
 router.post('/user/modify/phone', UserService.modifyPhone); //补充手机号
+router.post('/user/modify/wechatid', UserService.saveWechatId); //补充手机号
 
 router.post('/user/register', UserService.register);
 router.post('/user/judgment/register', UserService.registerJudgment);
