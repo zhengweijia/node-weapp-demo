@@ -581,7 +581,7 @@ let saveWechatId = function (req, res) {
 					}
 				}).then(user => {
 					let wechat_id = req.body.wechat_id;
-					if(!!wechatId) {
+					if(!!wechat_id) {
 						user.update({
 							wechat_id: wechat_id,
 						}).then(()=>{
