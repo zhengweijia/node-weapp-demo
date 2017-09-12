@@ -598,7 +598,8 @@ let saveWechatId = function (req, res) {
 							'message': '没有微信号'
 						});
 					}
-				}).catch(()=>{
+				}).catch((e)=>{
+					console.log(e);
 					res.json({
 						'code': 1,
 						'message': '非法请求，没有openid'
@@ -607,6 +608,8 @@ let saveWechatId = function (req, res) {
 			}
 		})
 		.catch(()=>{
+			console.log(e);
+
 			res.json({
 				'code': 1,
 				'message': '非法请求'
