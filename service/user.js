@@ -570,11 +570,6 @@ let getReportInfo = function (req, res) {
 };
 
 let saveWechatId = function (req, res) {
-	res.json({
-		'code': 1,
-		'message': '非法请求，没有openid'
-	});
-
 	let loginService = LoginService.create(req, res);
 
 	loginService.check()
@@ -603,13 +598,11 @@ let saveWechatId = function (req, res) {
 							'message': '没有微信号'
 						});
 					}
-
-
 				}).catch(()=>{
-					// res.json({
-					// 	'code': 1,
-					// 	'message': '非法请求，没有openid'
-					// });
+					res.json({
+						'code': 1,
+						'message': '非法请求，没有openid'
+					});
 				});
 			}
 		})
