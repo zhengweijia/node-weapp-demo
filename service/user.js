@@ -606,10 +606,10 @@ let saveWechatId = function (req, res) {
 
 
 				}).catch(()=>{
-					res.json({
-						'code': 1,
-						'message': '非法请求，没有openid'
-					});
+					// res.json({
+					// 	'code': 1,
+					// 	'message': '非法请求，没有openid'
+					// });
 				});
 			}
 		})
