@@ -357,7 +357,7 @@ let getRanking = function (req, res) {
 
 
 /**
- * 获得用户名次(根据奖金情况)
+ * 更新用户手机和参加攀岩信息
  */
 let modifyPhone = function (req, res) {
 	let phone = req.body.phone;
@@ -391,14 +391,235 @@ let modifyPhone = function (req, res) {
 				});
 			}
 		}).catch(()=>{
-			res.json({
-				'code': 1,
-				'message': '非法请求'
-			});
+		res.json({
+			'code': 1,
+			'message': '非法请求'
+		});
 	});
 
 };
 
+/**
+ * 获得用户成绩单所需信息
+ */
+let getReportInfo = function (req, res) {
+
+	let loginService = LoginService.create(req, res);
+	loginService.check()
+		.then(data => {
+			if(!!data &&  !!data.userInfo && !!data.userInfo.openId) {
+				models.user.findOne({
+					where: {
+						openid: data.userInfo.openId
+					}
+				}).then(user=>{
+					let ret = {
+						'code': 0,
+						message:'ok',
+						data: {
+							money: 0,//获得奖金
+							maxLineDifficulty: {},// 最难路线难度对象
+							maxDifficultyUserNum: 0, // 最难线路完成人数
+
+							finishNum: 0, //完成线路数量
+
+							fastTime: 0,//最快完成线路时间
+							fastTimeRate: '', //最快完成时间超过80%
+						}
+					};
+					Promise.all([
+						models.line.findAll(),
+						models.line_difficulty.findAll(),
+						models.result.findAll({
+							where: {
+								user_id: user.id,
+								status: '1'
+							}
+						}),
+					]).then( (list)=>{
+						let allLine = list[0];
+						let allLineMap = {};
+
+						let allLineDifficulty = list[1];
+						let allLineDifficultyMap = {};
+						let resultList = list[2];
+
+						for(let d of allLineDifficulty) {
+							allLineDifficultyMap[d.id] = d;
+						}
+						for(let l of allLine) {
+							allLineMap[l.id] = l;
+						}
+						if(!!resultList && resultList.length > 0) {
+							//------------------ maxDifficultyLine: 0,// 最难路线
+							let maxLine = null;
+							let maxLineDifficulty = null;
+							let max = -100;
+							for (let res of resultList) {
+								let line = allLineMap[res.line_id];
+								if(!line) continue;
+								let lineDifficulty = allLineDifficultyMap[line.line_difficulty_id];
+								if(max < lineDifficulty.difficulty) {
+									maxLine = line;
+									max = lineDifficulty.difficulty;
+									maxLineDifficulty = lineDifficulty;
+								}
+							}
+							ret.data.maxLineDifficulty = maxLineDifficulty;
+
+							//------------------ fastTime: 0,//最快完成线路时间
+							let fast = null;
+							let fastLine = null;
+							let fastResult = null;
+							let onlyMap1 = {};
+							for (let res of resultList) {
+								if( fast === null || fast > res.time) {
+									fastLine = allLineMap[res.line_id];
+									fastResult = res;
+									fast = res.time;
+								}
+
+								// 计算一共完成多少线路
+								if(!onlyMap1[res.id]) {
+									onlyMap1[res.id] = true;
+									ret.data.finishNum++;
+								}
+							}
+
+
+							Promise.all([
+								// 难度最大的路线，查找所有完成该路线的
+								models.result.findAll({
+									where: {
+										line_id: maxLine.id,
+										status: '1'
+									}
+								}),
+								// 用时最短，查找所有完成该路线的
+								models.result.findAll({
+									where: {
+										line_id: fastLine.id,
+										status: '1'
+									}
+								})
+							]).then((rList)=>{
+
+								//------------------ maxDifficultyUserNum: 0, // 最难线路完成人数
+								let maxResultList = rList[0];
+								let fastResultList = rList[1];
+
+								let maxNum = 0;
+								let onlyMap = {};//用来排除一个人攀成功了两次的情况
+								for (let i of maxResultList) {
+									if(!onlyMap[i.user_id]) {
+										maxNum++;
+										onlyMap[i.user_id] = true;
+									}
+								}
+								ret.data.maxDifficultyUserNum = maxNum;
+
+								//------------------ fastTimeRate: 0, //最快完成时间超过多少人超过 98% 的选手
+								onlyMap = {};
+								let onlyList = [];
+								fastResultList.sort((a, b)=>{
+									return a.time -b.time;
+								});
+								for (let i of fastResultList) {
+									if(!onlyMap[i.user_id] && i.user_id != user.id) {
+										onlyList.push(i);
+										onlyMap[i.user_id] = true;
+									}
+								}
+								let moreNum = 0; // 比他攀爬时间多的人数
+								for (let i of onlyList) {
+									if(i.time > fastResult.time) {
+										moreNum++;
+									}
+								}
+								if(onlyList.length == 0) {
+									ret.data.fastTimeRate = '100%';
+								} else {
+									ret.data.fastTimeRate = parseInt(moreNum*100/onlyList.length)+'%';
+								}
+								ret.data.fastTime = fastResult.time;
+								ret.data.money = user.money;
+								res.json(ret);
+							}).catch((e)=>{
+								console.log(e);
+								res.json(ret);
+							});
+						} else {
+							console.log('!!resultList && resultList.length > 0')
+							res.json(ret);
+						}
+
+					}).catch((e) =>{
+						console.log(e);
+						res.json(ret);
+					});
+				});
+			} else {
+				res.json({
+					'code': 1,
+					'message': '非法请求，没有openid'
+				});
+			}
+		}).catch(()=>{
+		res.json({
+			'code': 1,
+			'message': '非法请求'
+		});
+	});
+
+};
+
+let saveWechatId = function (req, res) {
+	let loginService = LoginService.create(req, res);
+
+	loginService.check()
+		.then(data => {
+			if (!!data && !!data.userInfo && !!data.userInfo.openId) {
+				models.user.findOne({
+					where: {
+						openid: data.userInfo.openId
+					}
+				}).then(user => {
+					let wechat_id = req.body.wechat_id;
+					if(!!wechat_id) {
+						user.update({
+							wechat_id: wechat_id,
+						}).then(()=>{
+							res.json({
+								'code': 0,
+								'message': 'ok',
+								'data': {
+								},
+							});
+						});
+					} else {
+						res.json({
+							'code': 1,
+							'message': '没有微信号'
+						});
+					}
+				}).catch((e)=>{
+					console.log(e);
+					res.json({
+						'code': 1,
+						'message': '非法请求，没有openid'
+					});
+				});
+			}
+		})
+		.catch(()=>{
+			console.log(e);
+
+			res.json({
+				'code': 1,
+				'message': '非法请求'
+			});
+		});
+};
 module.exports = {
 	get: get,
 	curr: curr, // 获得当前用户信息
@@ -409,4 +630,6 @@ module.exports = {
 
 	getRanking: getRanking,
 	modifyPhone: modifyPhone,
+	getReportinfo: getReportInfo,
+	saveWechatId: saveWechatId,
 }
