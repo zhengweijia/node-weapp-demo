@@ -543,10 +543,12 @@ let getReportInfo = function (req, res) {
 								ret.data.fastTime = fastResult.time;
 								ret.data.money = user.money;
 								res.json(ret);
-							}).catch(()=>{
+							}).catch((e)=>{
+								console.log(e);
 								res.json(ret);
 							});
 						} else {
+							console.log('!!resultList && resultList.length > 0')
 							res.json(ret);
 						}
 
