@@ -457,6 +457,7 @@ let getReportInfo = function (req, res) {
 							let max = -100;
 							for (let res of resultList) {
 								let line = allLineMap[res.line_id];
+								if(!line) continue;
 								let lineDifficulty = allLineDifficultyMap[line.line_difficulty_id];
 								if(max < lineDifficulty.difficulty) {
 									maxLine = line;
