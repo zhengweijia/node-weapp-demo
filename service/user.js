@@ -550,7 +550,8 @@ let getReportInfo = function (req, res) {
 							res.json(ret);
 						}
 
-					}).catch(() =>{
+					}).catch((e) =>{
+						console.log(e);
 						res.json(ret);
 					});
 				});
