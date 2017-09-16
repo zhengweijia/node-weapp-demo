@@ -310,9 +310,6 @@ let updateAllUserMoney = function (req, res) {
 			sumMMMM = sumMMMM+obj.money;
 			sumMMMMList.push(obj.money)
 		}
-		console.log('sumMMMM---------------'+sumMMMM, 'zongrenshu:'+ sumMMMMList.length);
-		console.log('sumMMMMList---------------', sumMMMMList);
-
 
 		return Promise.all(pList).then(()=>{
 			if(!!res &&  !!res.json) {
