@@ -263,7 +263,7 @@ let registerJudgment = (req, res) => {
 let updateAllUserMoney = function (req, res) {
 //	先取出来所有用户，所有line，所有result
 	return Promise.all([
-		models.user.findAll(),
+		models.user.findAll({where:{role:2}}),
 		models.line.findAll(),
 		models.result.findAll()
 	]).then((list)=>{
@@ -299,6 +299,7 @@ let updateAllUserMoney = function (req, res) {
 				});
 			}
 		}
+		console.log('用户数量----------'+userList.length);
 
 		console.log(userListMap);
 		let pList = [];
