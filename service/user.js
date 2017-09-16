@@ -300,25 +300,24 @@ let updateAllUserMoney = function (req, res) {
 			}
 		}
 
+		console.log(userListMap);
+		let pList = [];
 		for (let obj of userListMap) {
-			obj.user.update({
+			pList.push(obj.user.update({
 				money: obj.money
-			}).then((lineData)=>{
-			});
+			}));
 		}
-
-		if(!!res &&  !!res.json) {
-			setTimeout(()=>{
+		return Promise.all(pList).then(()=>{
+			if(!!res &&  !!res.json) {
 				res.json({
 					'code': 0,
 					'message': 'ok',
 					'data': {
 					},
 				});
-			}, 20000)
-		}
-
-		return '';
+			}
+			return '';
+		});
 	})
 
 };
