@@ -288,7 +288,8 @@ let updateAllUserMoney = function (req, res) {
 					// parseFloat((line.bonus / line.finish_num).toFixed(2));
 					let line = lineMap[result.line_id];
 					if(!!line) {
-						money = money + parseFloat((line.bonus / line.finish_num).toFixed(2));
+						// money = money + parseFloat((line.bonus / line.finish_num).toFixed(2));
+						money = money + parseInt((line.bonus / line.finish_num));
 					}
 				}
 			}
@@ -306,7 +307,7 @@ let updateAllUserMoney = function (req, res) {
 		for (let obj of userListMap) {
 			pList.push(obj.user.update({
 				money: obj.money
-			}))
+			}));
 			sumMMMM = sumMMMM+obj.money;
 			sumMMMMList.push(obj.money)
 		}
