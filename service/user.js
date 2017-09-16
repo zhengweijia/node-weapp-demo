@@ -279,6 +279,7 @@ let updateAllUserMoney = function (req, res) {
 
 		for(let user of userList) {
 			let hasLineMap = {}; // 用来标记，防止一个用户重复攀登，多次计算奖金
+			let userListMap = [];
 			let money = 0;
 			for(let result of resultList) {
 				//状态，-1正在进行中，0 失败，1成功
@@ -292,20 +293,29 @@ let updateAllUserMoney = function (req, res) {
 				}
 			}
 			if(money !== 0 && user.money != money) {
-				user.update({
-					money: money
-				}).then((lineData)=>{
+				userListMap.push({
+					user: user,
+					money:money
 				});
 			}
 		}
 
-		if(!!res &&  !!res.json) {
-			res.json({
-				'code': 0,
-				'message': 'ok',
-				'data': {
-				},
+		for (let obj of userListMap) {
+			obj.user.update({
+				money: obj.money
+			}).then((lineData)=>{
 			});
+		}
+
+		if(!!res &&  !!res.json) {
+			setTimeout(()=>{
+				res.json({
+					'code': 0,
+					'message': 'ok',
+					'data': {
+					},
+				});
+			}, 20000)
 		}
 
 		return '';
