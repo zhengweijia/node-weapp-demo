@@ -292,7 +292,7 @@ let updateAllUserMoney = function (req, res) {
 					}
 				}
 			}
-			if(money !== 0 && user.money != money) {
+			if(money !== 0) {
 				userListMap.push({
 					user: user,
 					money:money
