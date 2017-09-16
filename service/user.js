@@ -287,13 +287,13 @@ let updateAllUserMoney = function (req, res) {
 					hasLineMap[result.id] = true;
 					// parseFloat((line.bonus / line.finish_num).toFixed(2));
 					let line = lineMap[result.line_id];
-					if(!!line) {
+					if(!!line && line.finish_num > 0) {
 						// money = money + parseFloat((line.bonus / line.finish_num).toFixed(2));
 						money = money + parseInt((line.bonus / line.finish_num));
 					}
 				}
 			}
-			if(money !== 0) {
+			if(money > 0) {
 				userListMap.push({
 					user: user,
 					money:money
