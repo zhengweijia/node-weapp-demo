@@ -299,15 +299,21 @@ let updateAllUserMoney = function (req, res) {
 				});
 			}
 		}
-		console.log('用户数量----------'+userList.length);
 
-		console.log(userListMap);
 		let pList = [];
+		let sumMMMM = 0;
+		let sumMMMMList = [];
 		for (let obj of userListMap) {
 			pList.push(obj.user.update({
 				money: obj.money
-			}));
+			}))
+			sumMMMM = sumMMMM+obj.money;
+			sumMMMMList.push(obj.money)
 		}
+		console.log('sumMMMM---------------'+sumMMMM);
+		console.log('sumMMMMList---------------', sumMMMMList);
+
+
 		return Promise.all(pList).then(()=>{
 			if(!!res &&  !!res.json) {
 				res.json({
