@@ -301,14 +301,10 @@ let updateAllUserMoney = function (req, res) {
 		}
 
 		let pList = [];
-		let sumMMMM = 0;
-		let sumMMMMList = [];
 		for (let obj of userListMap) {
 			pList.push(obj.user.update({
 				money: obj.money
 			}));
-			sumMMMM = sumMMMM+obj.money;
-			sumMMMMList.push(obj.money)
 		}
 
 		return Promise.all(pList).then(()=>{
