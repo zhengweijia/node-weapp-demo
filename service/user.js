@@ -295,13 +295,13 @@ let updateAllUserMoney = function () {
 				user.update({
 					money: money
 				}).then((lineData)=>{
-					res.json({
-						'code': 0,
-						'message': 'ok',
-						'data': {
-							time: time // 比赛耗时
-						},
-					});
+					// res.json({
+					// 	'code': 0,
+					// 	'message': 'ok',
+					// 	'data': {
+					// 		time: time // 比赛耗时
+					// 	},
+					// });
 				});
 			}
 		}
