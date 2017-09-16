@@ -287,9 +287,9 @@ let updateAllUserMoney = function (req, res) {
 					hasLineMap[result.id] = true;
 					// parseFloat((line.bonus / line.finish_num).toFixed(2));
 					let line = lineMap[result.line_id];
-					if(!!line && line.finish_num > 0) {
+					if(!!line && line.finish_num > 0 && line.bonus > 0) {
 						// money = money + parseFloat((line.bonus / line.finish_num).toFixed(2));
-						money = money + parseInt((line.bonus / line.finish_num));
+						money = parseInt(money + parseInt((line.bonus / line.finish_num)));
 					}
 				}
 			}
@@ -311,7 +311,7 @@ let updateAllUserMoney = function (req, res) {
 			sumMMMM = sumMMMM+obj.money;
 			sumMMMMList.push(obj.money)
 		}
-		console.log('sumMMMM---------------'+sumMMMM);
+		console.log('sumMMMM---------------'+sumMMMM, 'zongrenshu:'+ sumMMMMList.length);
 		console.log('sumMMMMList---------------', sumMMMMList);
 
 
