@@ -18,6 +18,8 @@ router.get('/user/getcurr', UserService.curr);
 router.get('/user/checkRegister', UserService.checkRegister);
 router.get('/user/reportinfo', UserService.getReportinfo);
 
+router.get('/user/updateAllUserMoney', UserService.updateAllUserMoney);
+
 router.post('/user/modify/phone', UserService.modifyPhone); //补充手机号
 router.post('/user/modify/wechatid', UserService.saveWechatId); //补充手机号
 

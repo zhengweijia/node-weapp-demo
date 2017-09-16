@@ -260,7 +260,7 @@ let registerJudgment = (req, res) => {
 /**
  * 更新所有参赛选手的获得奖金信息
  */
-let updateAllUserMoney = function () {
+let updateAllUserMoney = function (req, res) {
 //	先取出来所有用户，所有line，所有result
 	return Promise.all([
 		models.user.findAll(),
@@ -295,15 +295,17 @@ let updateAllUserMoney = function () {
 				user.update({
 					money: money
 				}).then((lineData)=>{
-					// res.json({
-					// 	'code': 0,
-					// 	'message': 'ok',
-					// 	'data': {
-					// 		time: time // 比赛耗时
-					// 	},
-					// });
 				});
 			}
+		}
+
+		if(!!res &&  !!res.json) {
+			res.json({
+				'code': 0,
+				'message': 'ok',
+				'data': {
+				},
+			});
 		}
 
 		return '';
