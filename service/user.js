@@ -276,10 +276,10 @@ let updateAllUserMoney = function (req, res) {
 			lineMap[line.id] = line;
 		}
 		lineList = null;
+		let userListMap = [];
 
 		for(let user of userList) {
 			let hasLineMap = {}; // 用来标记，防止一个用户重复攀登，多次计算奖金
-			let userListMap = [];
 			let money = 0;
 			for(let result of resultList) {
 				//状态，-1正在进行中，0 失败，1成功
