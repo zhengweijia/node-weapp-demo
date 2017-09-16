@@ -283,8 +283,8 @@ let updateAllUserMoney = function (req, res) {
 			let money = 0;
 			for(let result of resultList) {
 				//状态，-1正在进行中，0 失败，1成功
-				if(result.user_id == user.id && result.status == '1'  && !hasLineMap[result.id]) {
-					hasLineMap[result.id] = true;
+				if(result.user_id == user.id && result.status == '1'  && !hasLineMap[result.line_id]) {
+					hasLineMap[result.line_id] = true;
 					// parseFloat((line.bonus / line.finish_num).toFixed(2));
 					let line = lineMap[result.line_id];
 					if(!!line && line.finish_num > 0 && line.bonus > 0) {
