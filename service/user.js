@@ -288,8 +288,7 @@ let updateAllUserMoney = function (req, res) {
 					// parseFloat((line.bonus / line.finish_num).toFixed(2));
 					let line = lineMap[result.line_id];
 					if(!!line && line.finish_num > 0 && line.bonus > 0) {
-						// money = money + parseFloat((line.bonus / line.finish_num).toFixed(2));
-						money = parseInt(money + parseInt((line.bonus / line.finish_num)));
+						money = money + parseFloat((line.bonus / line.finish_num).toFixed(2));
 					}
 				}
 			}
